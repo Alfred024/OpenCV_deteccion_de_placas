@@ -3,7 +3,7 @@ import requests
 # urlDemo = "https://jsonplaceholder.typicode.com/photos";
 
 placa = "JU45393"
-url = "/api/reg.asmx/CheckMexico?RegistrationNumber=string&username=Alfredo_JimenezT"
+url = "/api/reg.asmx/CheckMexico?RegistrationNumber={placa}&username=Alfredo_JimenezT"
 
 headers = {
 	"Authorization": "a950074d08eab7d5de00fc38e0eb15bd7ed8ca54",

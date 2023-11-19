@@ -9,6 +9,7 @@
 * [OpenCV] para  
 * [Numpy] para 
 
+# Repositirio funete del haarcascade: [https://github.com/opencv/opencv/tree/master/data/haarcascades]
 
 # 1.- Área estática de detección de la placa 
     # La velocidad del procesamiento de los FOTOGRAMAS variará de acuerdo al equipo
