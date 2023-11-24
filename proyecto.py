@@ -1,5 +1,8 @@
 import cv2
-# import numpy
+import numpy
+#from PIL import Image
+
+#import pytesseract
 # import pytesseract
 
 frameWidth=640
@@ -31,43 +34,44 @@ count=0
 plateText = ''
 
 while True:
-    
-    # Si puede leer el archivo MP4 procederá a ejecutar el programa
-    # Reading the frame of .mp4 file
     success,videoFrame=cap.read()
     if success == False:
         break 
 
-    # Se cambia el color de la imagen a escala de grises
-    # La razón de esta acción se explica aquí: https://www.isahit.com/blog/why-to-use-grayscale-conversion-during-image-processing#:~:text=It%20helps%20in%20simplifying%20algorithms,It%20enhances%20easy%20visualisation.
     imgGray=cv2.cvtColor(videoFrame,cv2.COLOR_BGR2GRAY)
-    
-    # detectMultiScale: Detects objects of different sizes in the input image. The detected objects are returned as a list of rectangles.
-    # detectMultiScale:params
-    # par1 -> image:Matrix of the type CV_8U containing an image where objects are detected., 
-    # par2 -> scaleFactor: Parameter specifying how much the image size is reduced at each image scale., 
-    # par3 -> minNeighbors: Parameter specifying how many neighbors each candidate rectangle should have to retain it.
     numberPlates=nPlateCascade.detectMultiScale(imgGray,1.1,10)
+    plateDetectedFrame = None
     
-    for(x,y,w,h) in numberPlates:
-        area=w*h
-        if area>minArea:
-            
-            # rectangle:params
-            # image
-            # start_point
-            # end_point
-            # color (of border)
-            # thickness (of border width in px)
-            cv2.rectangle(videoFrame,(x,y),(x+w,y+h),borderColor,2)
-            cv2.putText(videoFrame,"Placa",(x,y-5),
-                         cv2.FONT_HERSHEY_COMPLEX_SMALL,1,borderColor,2)
-            
-            # Frame en RGB
-            plateDetectedFrame=videoFrame[y:y+h,x:x+w]
-            cv2.imshow("ROI",plateDetectedFrame)
+    for(x_start,y_start,width,height) in numberPlates:
+        cv2.rectangle(videoFrame,(x_start,y_start),(x_start+width,y_start+height),borderColor,2)
+        cv2.putText(videoFrame,"Placa",(x_start,y_start-5),
+        cv2.FONT_HERSHEY_COMPLEX_SMALL,1,borderColor,2)
+        
+        plateDetectedFrame=videoFrame[y_start:y_start+height,x_start:x_start+width]
+        
+        # Extracción de la altura y anchura del frame que detectó la placa
+        heightPlate, widthPlate, frame = plateDetectedFrame.shape
+        # Return a new array of given shape and type, filled with zeros.
+        # (heightPlate, widthPlate) = shape of the array
+        # quick and easy way to initialize an array with zeros before populating it
+        # https://numpy.org/doc/stable/reference/generated/numpy.zeros.html
+        RGB_matrix = numpy.zeros((heightPlate, widthPlate))
+        
+        blue_Matrix = numpy.matrix(plateDetectedFrame[:,:,0])
+        green_Matrix = numpy.matrix(plateDetectedFrame[:,:,1])
+        red_Matrix = numpy.matrix(plateDetectedFrame[:,:,2])
+        
+        # Llenamos la matriz con los valores binarios del color negro?
+        for c in range(0, heightPlate):
+            for r in range(0, widthPlate):
+                max_val_matrix = max(blue_Matrix, green_Matrix, red_Matrix)
+                RGB_matrix[c,r] = 255 - max_val_matrix
+        
+        # método explicación: https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
+        _, bin = cv2.threshold(RGB_matrix, 155,255, cv2.THRESH_BINARY)
+        
+        cv2.imshow("ROI",plateDetectedFrame)
 
-    # Shows completr videoFrame
     cv2.imshow("resultado",videoFrame)
 
     if cv2.waitKey(1)& 0xFF==ord('s'):
