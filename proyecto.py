@@ -1,6 +1,6 @@
 import cv2
 import numpy
-#from PIL import Image
+from PIL import Image
 
 #import pytesseract
 # import pytesseract
@@ -47,6 +47,7 @@ while True:
         cv2.putText(videoFrame,"Placa",(x_start,y_start-5),
         cv2.FONT_HERSHEY_COMPLEX_SMALL,1,borderColor,2)
         
+        # Este son los valores RGB de la placa que captura en el video
         plateDetectedFrame=videoFrame[y_start:y_start+height,x_start:x_start+width]
         
         # Extracción de la altura y anchura del frame que detectó la placa
@@ -64,7 +65,9 @@ while True:
         # Llenamos la matriz con los valores binarios del color negro?
         for c in range(0, heightPlate):
             for r in range(0, widthPlate):
-                max_val_matrix = max(blue_Matrix, green_Matrix, red_Matrix)
+                max_val_matrix = max(blue_Matrix[c,r], green_Matrix[c,r], red_Matrix[c,r])
+                # Esta operación obtiene los valores que representan el negro de la placa, 
+                # para así procesar los caracteres de la misma
                 RGB_matrix[c,r] = 255 - max_val_matrix
         
         # método explicación: https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
