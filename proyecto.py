@@ -1,5 +1,6 @@
 import cv2
 import numpy
+import pytesseract
 from PIL import Image
 
 #import pytesseract
@@ -39,7 +40,7 @@ while True:
         break 
 
     imgGray=cv2.cvtColor(videoFrame,cv2.COLOR_BGR2GRAY)
-    numberPlates=nPlateCascade.detectMultiScale(imgGray,1.1,10)
+    numberPlates=nPlateCascade.detectMultiScale(imgGray,1.05,10)
     plateDetectedFrame = None
     
     for(x_start,y_start,width,height) in numberPlates:
@@ -72,6 +73,18 @@ while True:
         
         # método explicación: https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
         _, bin = cv2.threshold(RGB_matrix, 155,255, cv2.THRESH_BINARY)
+        
+        # Convertimos la imágen 
+        bin = bin.reshape(heightPlate, widthPlate)
+        bin = Image.fromarray(bin)
+        bin = bin.convert("L")
+        
+        # Ubicación de pyteseract en Python
+        # pytesseract.pytesseract.tesseract_cmd = r'c:\users\solid\appdata\local\programs\python\python310\lib\site-packages'
+        pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract\tesseract.exe'
+        plateText = pytesseract.image_to_string(bin, config='--psm 1')
+        
+        print('TEXTO: '+plateText)
         
         cv2.imshow("ROI",plateDetectedFrame)
 
